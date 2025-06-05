@@ -1,8 +1,8 @@
 // lib/app_scaffold.dart
 import 'package:flutter/material.dart';
 import 'package:pokemans/main.dart';
-import '../ProfileScreen.dart';
-import 'ProfileScreen.dart';
+import '../screens/ProfileScreen.dart';
+import '../screens/ProfileScreen.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget body;

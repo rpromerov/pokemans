@@ -3,7 +3,7 @@ import 'dart:math';
                     import 'package:flutter/material.dart';
 import 'package:pokemans/widgets/AppScaffold.dart';
 
-                    import 'ProfileScreen.dart';
+                    import 'screens/ProfileScreen.dart';
 
                     void main() {
                       runApp(const MyApp());
