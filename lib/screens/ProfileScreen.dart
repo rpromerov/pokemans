@@ -3,7 +3,8 @@ import 'package:pokemans/widgets/AppScaffold.dart';
 import 'package:pokemans/widgets/DeckGroup.dart';
 
 class ProfileScreen extends StatelessWidget {
-static const routeName = '/profile';
+  static const routeName = '/profile';
+
   const ProfileScreen({super.key});
 
   @override
@@ -11,7 +12,7 @@ static const routeName = '/profile';
     return AppScaffold(
       title: "Perfil",
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -21,16 +22,17 @@ static const routeName = '/profile';
                 Expanded(
                   child: Image.asset(
                     'media/profile.png',
-                    fit: BoxFit.contain, // O BoxFit.cover según lo que prefieras
+                    fit: BoxFit.contain,
                     width: double.infinity,
-                    height: 120, // Puedes ajustar la altura si lo deseas
+                    height: 120,
                   ),
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: Colors.deepPurple,
                         borderRadius: BorderRadius.circular(8),
@@ -54,7 +56,6 @@ static const routeName = '/profile';
                       style: TextStyle(fontSize: 20),
                     ),
                   ],
-                  
                 ),
               ],
             ),
@@ -81,11 +82,12 @@ static const routeName = '/profile';
               ],
             ),
             const SizedBox(height: 24),
-
-          Text("Mis mazos",style: Theme.of(context).textTheme.titleMedium,),
-          Expanded(
+            Text(
+              "Mis mazos",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            Expanded(
               child: SingleChildScrollView(
-
                 child: Column(
                   children: List.generate(
                     4,

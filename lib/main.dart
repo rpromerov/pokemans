@@ -44,7 +44,6 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
   static const List<String> greetings = [
     "¡Bienvenido, entrenador Pokémon!",
     "¡Atrápalos a todos!",
@@ -67,19 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
   String get greeting => greetings[Random().nextInt(greetings.length)];
   String currentGreeting = greetings[Random().nextInt(greetings.length)];
 
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    void _navigate(String route) {
-      Navigator.pop(context); // Cierra el Drawer
-      Navigator.pushNamed(context, route);
-    }
-
     return AppScaffold(
       title: "PikaDecks",
       body: Center(
