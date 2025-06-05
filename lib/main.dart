@@ -1,6 +1,7 @@
 import 'dart:math';
 
                     import 'package:flutter/material.dart';
+import 'package:pokemans/screens/LibraryScreen.dart';
 import 'package:pokemans/widgets/AppScaffold.dart';
 
                     import 'screens/ProfileScreen.dart';
@@ -24,6 +25,7 @@ import 'package:pokemans/widgets/AppScaffold.dart';
                           routes: {
                             ProfileScreen.routeName: (context) => const ProfileScreen(),
                             MyHomePage.routeName: (context) => const MyHomePage(title: 'PikaDecks'),
+                            Libraryscreen.routeName: (context) =>  Libraryscreen(),
 
                           },
                         );

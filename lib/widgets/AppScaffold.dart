@@ -1,6 +1,7 @@
 // lib/app_scaffold.dart
 import 'package:flutter/material.dart';
 import 'package:pokemans/main.dart';
+import '../screens/LibraryScreen.dart';
 import '../screens/ProfileScreen.dart';
 import '../screens/ProfileScreen.dart';
 
@@ -47,9 +48,12 @@ class AppScaffold extends StatelessWidget {
                 Navigator.pushNamed(context, ProfileScreen.routeName);
               },
             ),
-            const ListTile(
-              leading: Icon(Icons.library_books),
-              title: Text('Biblioteca'),
+            ListTile(
+              leading: const Icon(Icons.library_books),
+              title: const Text('Biblioteca'),
+              onTap: () {
+                Navigator.pushNamed(context, Libraryscreen.routeName);
+              },
             ),
             const ListTile(
               leading: Icon(Icons.dashboard_customize),
