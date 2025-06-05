@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:pokemans/screens/CreatorScreen.dart';
 import 'package:pokemans/screens/DecksScreen.dart';
 import 'package:pokemans/screens/LibraryScreen.dart';
 import 'package:pokemans/widgets/AppScaffold.dart';
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
         MyHomePage.routeName: (context) => const MyHomePage(title: 'PikaDecks'),
         Libraryscreen.routeName: (context) => Libraryscreen(),
         DecksScreen.routeName: (context) => const DecksScreen(),
+        CreatorScreen.routeName: (context) => const CreatorScreen(),
       },
     );
   }

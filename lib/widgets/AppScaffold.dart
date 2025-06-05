@@ -1,6 +1,7 @@
 // lib/app_scaffold.dart
 import 'package:flutter/material.dart';
 import 'package:pokemans/main.dart';
+import 'package:pokemans/screens/CreatorScreen.dart';
 
 import '../screens/DecksScreen.dart';
 import '../screens/LibraryScreen.dart';
@@ -63,9 +64,12 @@ class AppScaffold extends StatelessWidget {
                 Navigator.pushNamed(context, DecksScreen.routeName);
               },
             ),
-            const ListTile(
-              leading: Icon(Icons.create),
-              title: Text('Creador'),
+            ListTile(
+              leading: const Icon(Icons.create),
+              title: const Text('Creador'),
+              onTap: () {
+                Navigator.pushNamed(context, CreatorScreen.routeName);
+              },
             ),
           ],
         ),
