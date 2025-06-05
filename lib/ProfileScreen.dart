@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pokemans/widgets/AppScaffold.dart';
 import 'package:pokemans/widgets/DeckGroup.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -7,10 +8,8 @@ static const routeName = '/profile';
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Perfil'),
-      ),
+    return AppScaffold(
+      title: "Perfil",
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0,vertical: 24),
         child: Column(

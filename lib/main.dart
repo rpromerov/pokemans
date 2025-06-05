@@ -1,6 +1,7 @@
 import 'dart:math';
 
                     import 'package:flutter/material.dart';
+import 'package:pokemans/widgets/AppScaffold.dart';
 
                     import 'ProfileScreen.dart';
 
@@ -22,6 +23,8 @@ import 'dart:math';
                           home: const MyHomePage(title: 'PikaDecks'),
                           routes: {
                             ProfileScreen.routeName: (context) => const ProfileScreen(),
+                            MyHomePage.routeName: (context) => const MyHomePage(title: 'PikaDecks'),
+
                           },
                         );
                       }
@@ -29,6 +32,7 @@ import 'dart:math';
 
                     class MyHomePage extends StatefulWidget {
                       const MyHomePage({super.key, required this.title});
+                      static const routeName = '/home';
                       final String title;
 
                       @override
@@ -55,6 +59,9 @@ import 'dart:math';
                         "¡Que la amistad con tus Pokémon crezca cada día!",
                         "¡Recuerda usar desodorante en el torneo!"
                       ];
+
+                      String get greeting => greetings[Random().nextInt(greetings.length)];
+                      String currentGreeting = greetings[Random().nextInt(greetings.length)];
                       void _incrementCounter() {
                         setState(() {
                           _counter++;
@@ -67,57 +74,24 @@ import 'dart:math';
                           Navigator.pop(context); // Cierra el Drawer
                           Navigator.pushNamed(context, route);
                         }
-                        return Scaffold(
-                          appBar: AppBar(
-                            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                            title: Text(widget.title),
-                          ),
-                          drawer: Drawer(
-                            child: ListView(
-                              padding: EdgeInsets.zero,
-                              children: <Widget>[
-                                const DrawerHeader(
-                                  decoration: BoxDecoration(
-                                    color: Colors.deepPurple,
-                                  ),
-                                  child: Text(
-                                    'Opciones',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24,
-                                    ),
-                                  ),
-                                ),
-                                ListTile(
-                                  leading: const Icon(Icons.person),
-                                  title: const Text('Perfil'),
-                                  onTap: () {
-                                    Navigator.pushNamed(context, ProfileScreen.routeName);
-                                  },
-                                ),
-                                const ListTile(
-                                  leading: Icon(Icons.library_books),
-                                  title: Text('Biblioteca'),
-                                ),
-                                const ListTile(
-                                  leading: Icon(Icons.dashboard_customize),
-                                  title: Text('Mis mazos'),
-                                ),
-                                const ListTile(
-                                  leading: Icon(Icons.create),
-                                  title: Text('Creador'),
-                                ),
-                              ],
-                            ),
-                          ),
+                        return AppScaffold(
+
+                          title: "PikaDecks",
                           body: Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
-                                Image.asset(
-                                  'media/pikachu.png',
-                                  width: MediaQuery.of(context).size.width / 3,
-                                  fit: BoxFit.contain,
+                                GestureDetector(
+                                  child: Image.asset(
+                                    'media/pikachu.png',
+                                    width: MediaQuery.of(context).size.width / 3,
+                                    fit: BoxFit.contain,
+                                  ),
+                                  onTap: (){
+                                    setState(() {
+                                      currentGreeting = greetings[Random().nextInt(greetings.length)];
+                                    });
+                                  },
                                 ),
                                 Text(
                                   greetings[Random().nextInt(greetings.length)],
