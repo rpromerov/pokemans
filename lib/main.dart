@@ -67,6 +67,18 @@ class _MyHomePageState extends State<MyHomePage> {
   String currentGreeting = greetings[Random().nextInt(greetings.length)];
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final snackBar = SnackBar(
+        content: Text("¡Haz tap en Pikachu!"),
+        duration: Duration(seconds: 3),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AppScaffold(
       title: "PikaDecks",
