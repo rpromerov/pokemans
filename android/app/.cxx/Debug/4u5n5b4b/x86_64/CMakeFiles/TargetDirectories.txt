@@ -1,0 +1,2 @@
+/Users/diegovasquez/Documents/Aplicaciones moviles/pokemans/android/app/.cxx/Debug/4u5n5b4b/x86_64/CMakeFiles/edit_cache.dir
+/Users/diegovasquez/Documents/Aplicaciones moviles/pokemans/android/app/.cxx/Debug/4u5n5b4b/x86_64/CMakeFiles/rebuild_cache.dir
