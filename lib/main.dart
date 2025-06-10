@@ -4,11 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:pokemans/screens/CreatorScreen.dart';
 import 'package:pokemans/screens/DecksScreen.dart';
 import 'package:pokemans/screens/LibraryScreen.dart';
+import 'package:pokemans/screens/LoginScreen.dart';
 import 'package:pokemans/widgets/AppScaffold.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'screens/ProfileScreen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const MyApp());
 }
 
@@ -30,6 +39,7 @@ class MyApp extends StatelessWidget {
         Libraryscreen.routeName: (context) => Libraryscreen(),
         DecksScreen.routeName: (context) => const DecksScreen(),
         CreatorScreen.routeName: (context) => const CreatorScreen(),
+        Loginscreen.routeName: (context) => const Loginscreen(),
       },
     );
   }
