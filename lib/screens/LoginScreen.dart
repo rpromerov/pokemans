@@ -78,6 +78,13 @@ class _LoginscreenState extends State<Loginscreen> {
                 '¡Bienvenido a PikaDecks!',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
+              Flexible(
+                child: Image.asset(
+                  'media/pikachu.png',
+                  width: MediaQuery.of(context).size.width / 3,
+                  fit: BoxFit.contain,
+                ),
+              ),
               const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
@@ -107,24 +114,29 @@ class _LoginscreenState extends State<Loginscreen> {
                   border: OutlineInputBorder(),
                 ),
               ),
-              ElevatedButton(
-                onPressed: () {
-                  _loginWithEmail(
-                    _emailController.text,
-                    _passwordController.text,
-                  );
-                },
-                child: const Text('Iniciar Sesión'),
-              ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  _registerWithEmail(
-                    _emailController.text,
-                    _passwordController.text,
-                  );
-                },
-                child: const Text('Registrarse'),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    onPressed: () {
+                      _loginWithEmail(
+                        _emailController.text,
+                        _passwordController.text,
+                      );
+                    },
+                    child: const Text('Iniciar Sesión'),
+                  ),
+                  const SizedBox(width: 10),
+                  ElevatedButton(
+                    onPressed: () {
+                      _registerWithEmail(
+                        _emailController.text,
+                        _passwordController.text,
+                      );
+                    },
+                    child: const Text('Registrarse'),
+                  ),
+                ],
               ),
             ],
           ),

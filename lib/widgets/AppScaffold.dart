@@ -1,18 +1,23 @@
 // lib/app_scaffold.dart
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:pokemans/main.dart';
 import 'package:pokemans/screens/CreatorScreen.dart';
 import 'package:pokemans/screens/LoginScreen.dart';
 
 import '../screens/DecksScreen.dart';
 import '../screens/LibraryScreen.dart';
 import '../screens/ProfileScreen.dart';
+import '../screens/HomePage.dart';
 
 class AppScaffold extends StatelessWidget {
   final Widget body;
   final String title;
 
   const AppScaffold({super.key, required this.body, required this.title});
+
+  Future<void> _cerrarSesion() async {
+    await FirebaseAuth.instance.signOut();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,10 +79,10 @@ class AppScaffold extends StatelessWidget {
             ),
             // temp
             ListTile(
-              leading: const Icon(Icons.create),
-              title: const Text('Login'),
+              leading: const Icon(Icons.exit_to_app),
+              title: const Text('Cerrar Sesion'),
               onTap: () {
-                Navigator.pushNamed(context, Loginscreen.routeName);
+                _cerrarSesion();
               },
             ),
           ],
