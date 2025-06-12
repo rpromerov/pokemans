@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pokemans/screens/HomePage.dart';
 import 'package:pokemans/screens/LoginScreen.dart';
+import 'package:pokemans/services/PokeApi.dart';
 
 class AuthGate extends StatelessWidget {
   const AuthGate({super.key});
@@ -20,6 +21,7 @@ class AuthGate extends StatelessWidget {
         // 2. Si el snapshot tiene datos, significa que el usuario ha iniciado sesión
         if (snapshot.hasData) {
           // Usuario está logeado, lo dirigimos a la pantalla principal
+          Pokeapi().crearBiblioteca();
           return const MyHomePage(
             title: 'PikaDecks',
           );
