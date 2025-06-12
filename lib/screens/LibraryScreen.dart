@@ -1,5 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:pokemans/services/PokeApi.dart';
 import 'package:pokemans/widgets/AppScaffold.dart';
+import 'package:pokemon_tcg/pokemon_tcg.dart';
 
 class Libraryscreen extends StatefulWidget {
   static const routeName = '/library';
@@ -11,16 +14,16 @@ class Libraryscreen extends StatefulWidget {
 }
 
 class _LibraryscreenState extends State<Libraryscreen> {
-  final int imagesCount = 50;
   final int imagesPerPage = 12;
-  late final int pageCount;
   final PageController _pageController = PageController();
   int _currentPage = 0;
+  List<PokemonCard> _cards = [];
+  bool _loading = true;
 
   @override
   void initState() {
     super.initState();
-    pageCount = (imagesCount / imagesPerPage).ceil();
+    _loadCards();
     _pageController.addListener(() {
       int newPage = _pageController.page?.round() ?? 0;
       if (newPage != _currentPage) {
@@ -31,23 +34,165 @@ class _LibraryscreenState extends State<Libraryscreen> {
     });
   }
 
+  Future<void> _loadCards() async {
+    final pokeapi = Pokeapi();
+    final cards = await pokeapi.getBiblioteca();
+    setState(() {
+      _cards = cards;
+      _loading = false;
+    });
+  }
+
+  Future<void> _addCardToLibrary(String cardId) async {
+    final pokeapi = Pokeapi();
+    // Implementa este método en tu servicio para añadir la carta a Firestore
+    await pokeapi.db.collection(pokeapi.usuario!.uid).doc("Biblioteca").update({
+      'cartas': FieldValue.arrayUnion([cardId]),
+      'fecha modificacion': FieldValue.serverTimestamp(),
+    });
+    await _loadCards();
+  }
+
+  void _showAddCardModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) {
+        TextEditingController searchController = TextEditingController();
+        List<PokemonCard> searchResults = [];
+        bool searching = false;
+        int? addingIndex;
+
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            Future<void> _searchCards(String query) async {
+              setModalState(() => searching = true);
+              final result = await Pokeapi().buscarCartasPorNombre(query);
+              setModalState(() {
+                searchResults = result;
+                searching = false;
+              });
+            }
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+                left: 16,
+                right: 16,
+                top: 16,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Buscar carta',
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: () => _searchCards(searchController.text),
+                      ),
+                    ),
+                    onSubmitted: _searchCards,
+                  ),
+                  if (searching)
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  if (!searching)
+                    SizedBox(
+                      height: 400,
+                      child: GridView.builder(
+                        itemCount: searchResults.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 0.7,
+                        ),
+                        itemBuilder: (context, index) {
+                          final card = searchResults[index];
+                          return Stack(
+                            children: [
+                              Positioned.fill(
+                                child: card.images?.large != null
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(12),
+                                        child: Image.network(
+                                          card.images!.large,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : Container(
+                                        color: Colors.grey[300],
+                                        child:
+                                            const Icon(Icons.image, size: 80),
+                                      ),
+                              ),
+                              Positioned(
+                                top: 8,
+                                right: 8,
+                                child: addingIndex == index
+                                    ? const SizedBox(
+                                        width: 32,
+                                        height: 32,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 3),
+                                      )
+                                    : Material(
+                                        color: Colors.transparent,
+                                        child: IconButton(
+                                          icon: const Icon(Icons.add_circle,
+                                              color: Colors.deepPurple,
+                                              size: 32),
+                                          onPressed: () async {
+                                            setModalState(() {
+                                              addingIndex = index;
+                                            });
+                                            await _addCardToLibrary(card.id);
+                                            if (context.mounted)
+                                              Navigator.pop(context);
+                                          },
+                                        ),
+                                      ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
   List<Widget> _buildPages() {
+    int pageCount = (_cards.length / imagesPerPage).ceil();
     return List.generate(pageCount, (pageIndex) {
       int start = pageIndex * imagesPerPage;
-      int end = (start + imagesPerPage).clamp(0, imagesCount);
+      int end = (start + imagesPerPage).clamp(0, _cards.length);
       return GridView.count(
         crossAxisCount: 3,
         mainAxisSpacing: 4,
         crossAxisSpacing: 4,
         padding: const EdgeInsets.all(8),
         children: List.generate(end - start, (i) {
-          return Image.asset('media/carta.png');
+          final card = _cards[start + i];
+          return card.images != null && card.images.large != null
+              ? Image.network(card.images.large)
+              : const Icon(Icons.image_not_supported);
         }),
       );
     });
   }
 
-  Widget _buildPageIndicator() {
+  Widget _buildPageIndicator(int pageCount) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(pageCount, (index) {
@@ -68,11 +213,21 @@ class _LibraryscreenState extends State<Libraryscreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AppScaffold(
-      title: "Biblioteca",
+    if (_loading) {
+      return AppScaffold(
+        title: "Biblioteca",
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+    int pageCount = (_cards.length / imagesPerPage).ceil();
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Biblioteca"),
+        backgroundColor: Colors.deepPurple,
+      ),
       body: Column(
         children: [
-          Text("Total de cartas: $imagesCount",
+          Text("Total de cartas: ${_cards.length}",
               style: Theme.of(context).textTheme.titleMedium),
           Expanded(
             child: PageView(
@@ -80,8 +235,13 @@ class _LibraryscreenState extends State<Libraryscreen> {
               children: _buildPages(),
             ),
           ),
-          _buildPageIndicator(),
+          _buildPageIndicator(pageCount),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddCardModal,
+        child: const Icon(Icons.add),
+        backgroundColor: Colors.deepPurple,
       ),
     );
   }

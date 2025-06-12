@@ -1,8 +1,11 @@
 // 1f36f025-0f6b-464a-aa21-405a567ac9f0
 
-import 'package:pokemon_tcg/pokemon_tcg.dart';
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
+import 'package:pokemon_tcg/pokemon_tcg.dart';
 
 class Pokeapi {
   final api = PokemonTcgApi(apiKey: '1f36f025-0f6b-464a-aa21-405a567ac9f0');
@@ -42,6 +45,25 @@ class Pokeapi {
     });
   }
 
+  Future<List<PokemonCard>> buscarCartasPorNombre(String nombre) async {
+    final url = Uri.https(
+      'api.pokemontcg.io',
+      '/v2/cards',
+      {'q': 'name:$nombre', 'pageSize': '10'},
+    );
+    final response = await http.get(
+      url,
+      headers: {'X-Api-Key': '1f36f025-0f6b-464a-aa21-405a567ac9f0'},
+    );
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      final List<dynamic> cardsJson = data['data'];
+      return cardsJson.map((json) => PokemonCard.fromJson(json)).toList();
+    } else {
+      throw Exception('Error al buscar cartas');
+    }
+  }
+
   Future<List<PokemonCard>> getBiblioteca() async {
     final List<PokemonCard> pokemonCardList = [];
     final response = await db.collection(usuario!.uid).doc("Biblioteca").get();
@@ -51,5 +73,17 @@ class Pokeapi {
       pokemonCardList.add(carta);
     }
     return pokemonCardList;
+  }
+
+  Future<bool> tieneBiblioteca() async {
+    if (usuario == null) return false;
+
+    final doc = db.collection(usuario!.uid).doc("Biblioteca");
+    try {
+      final snapshot = await doc.get();
+      return snapshot.exists;
+    } catch (_) {
+      return false;
+    }
   }
 }

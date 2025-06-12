@@ -10,24 +10,31 @@ class AuthGate extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<User?>(
-      // 1. Escuchar el stream de cambios de estado de autenticación
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
-        // Muestra un indicador de carga mientras se verifica el estado
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        // 2. Si el snapshot tiene datos, significa que el usuario ha iniciado sesión
         if (snapshot.hasData) {
-          // Usuario está logeado, lo dirigimos a la pantalla principal
-          Pokeapi().crearBiblioteca();
-          return const MyHomePage(
-            title: 'PikaDecks',
+          // Usar FutureBuilder para esperar el resultado de tieneBiblioteca
+          return FutureBuilder<bool>(
+            future: Pokeapi().tieneBiblioteca(),
+            builder: (context, bibliotecaSnapshot) {
+              if (bibliotecaSnapshot.connectionState ==
+                  ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+              if (!bibliotecaSnapshot.hasData || !bibliotecaSnapshot.data!) {
+                // Si no tiene biblioteca, la creamos
+                Pokeapi().crearBiblioteca();
+              }
+              return const MyHomePage(
+                title: 'PikaDecks',
+              );
+            },
           );
         } else {
-          // 3. Si no hay datos, el usuario no ha iniciado sesión
-          // Lo dirigimos a la pantalla de login
           return const Loginscreen();
         }
       },
