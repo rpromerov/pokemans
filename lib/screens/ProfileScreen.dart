@@ -24,6 +24,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     _loadFavoritas();
     _loadCartasTotales();
+    _loadMazos();
+  }
+
+  Future<void> _loadMazos() async {
+    await _pokeapi.getMazos();
   }
 
   Future<void> _loadFavoritas() async {
@@ -155,6 +160,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         name: 'Mazo ${index + 1}',
                         tipo: 'Tipo ${index + 1}',
                         cartas: (index + 1) * 10,
+                        imagenesCartas: [
+                          'https://images.pokemontcg.io/base1/1.png',
+                          'https://images.pokemontcg.io/base1/2.png',
+                          'https://images.pokemontcg.io/base1/3.png',
+                        ],
                       ),
                     ),
                   ),

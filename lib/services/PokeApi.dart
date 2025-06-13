@@ -36,9 +36,28 @@ class Pokeapi {
     if (usuario == null) return;
 
     db.collection(usuario!.uid).doc("Mazos").set({
-      'nombre': nombre,
-      'cartas': cartas.map((carta) => carta.id).toList(),
+      nombre: cartas.map((carta) => carta.id).toList(),
     });
+  }
+
+  Future<Map<String, List<PokemonCard>>> getMazos() async {
+    if (usuario == null) return {};
+
+    final response = await db.collection(usuario!.uid).doc("Mazos").get();
+    if (!response.exists) return {};
+
+    final mapa = <String, List<PokemonCard>>{};
+    final cartasMazo = response.data();
+    for (final entry in cartasMazo!.keys) {
+      final nombreMazo = entry;
+      final cartas = cartasMazo[entry] as List<dynamic>;
+      for (final cardId in cartas) {
+        var carta = await api.getCard(cardId);
+        mapa.update(carta.name, (value) => [...value, carta],
+            ifAbsent: () => [carta]);
+      }
+    }
+    return mapa;
   }
 
   Future<List<PokemonCard>> buscarCartasPorNombre(String nombre) async {
