@@ -4,11 +4,12 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pokemon_tcg/pokemon_tcg.dart';
 
 class Pokeapi {
-  final api = PokemonTcgApi(apiKey: '1f36f025-0f6b-464a-aa21-405a567ac9f0');
+  final api = PokemonTcgApi(apiKey: dotenv.env['POKEMON_TCG_API_KEY'] ?? '');
   final db = FirebaseFirestore.instance;
   final usuario = FirebaseAuth.instance.currentUser;
 
@@ -48,7 +49,7 @@ class Pokeapi {
     );
     final response = await http.get(
       url,
-      headers: {'X-Api-Key': '1f36f025-0f6b-464a-aa21-405a567ac9f0'},
+      headers: {'X-Api-Key': dotenv.env['POKEMON_TCG_API_KEY'] ?? ''},
     );
     if (response.statusCode == 200) {
       final data = json.decode(response.body);

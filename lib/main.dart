@@ -1,19 +1,19 @@
-import 'dart:math';
-
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:pokemans/screens/Auth_gate.dart';
 import 'package:pokemans/screens/CreatorScreen.dart';
 import 'package:pokemans/screens/DecksScreen.dart';
+import 'package:pokemans/screens/HomePage.dart';
 import 'package:pokemans/screens/LibraryScreen.dart';
 import 'package:pokemans/screens/LoginScreen.dart';
-import 'package:pokemans/screens/HomePage.dart';
-import 'package:pokemans/screens/Auth_gate.dart';
 
-import 'screens/ProfileScreen.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'screens/ProfileScreen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
