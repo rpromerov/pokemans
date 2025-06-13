@@ -32,34 +32,6 @@ class Pokeapi {
         {'cartas favoritas': [], 'cartas totales': 0, 'sets diferentes': 0});
   }
 
-  void crearMazo(List<PokemonCard> cartas, String nombre) {
-    if (usuario == null) return;
-
-    db.collection(usuario!.uid).doc("Mazos").set({
-      nombre: cartas.map((carta) => carta.id).toList(),
-    });
-  }
-
-  Future<Map<String, List<PokemonCard>>> getMazos() async {
-    if (usuario == null) return {};
-
-    final response = await db.collection(usuario!.uid).doc("Mazos").get();
-    if (!response.exists) return {};
-
-    final mapa = <String, List<PokemonCard>>{};
-    final cartasMazo = response.data();
-    for (final entry in cartasMazo!.keys) {
-      final nombreMazo = entry;
-      final cartas = cartasMazo[entry] as List<dynamic>;
-      for (final cardId in cartas) {
-        var carta = await api.getCard(cardId);
-        mapa.update(carta.name, (value) => [...value, carta],
-            ifAbsent: () => [carta]);
-      }
-    }
-    return mapa;
-  }
-
   Future<List<PokemonCard>> buscarCartasPorNombre(String nombre) async {
     final url = Uri.https(
       'api.pokemontcg.io',
@@ -125,14 +97,27 @@ class Pokeapi {
     });
   }
 
-  // En lib/services/PokeApi.dart
   Future<List<Map<String, dynamic>>> getMazos() async {
     if (usuario == null) return [];
-    final doc = await db.collection(usuario!.uid).doc("Mazos").get();
-    if (!doc.exists) return [];
-    final data = doc.data();
-    if (data == null) return [];
-    return [data];
+    final snapshot = await db
+        .collection("usuarios")
+        .doc(usuario!.uid)
+        .collection("Mazos")
+        .get();
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
+  Future<void> crearMazo(List<PokemonCard> cartas, String nombre) async {
+    if (usuario == null) return;
+    await db
+        .collection("usuarios")
+        .doc(usuario!.uid)
+        .collection("Mazos")
+        .doc(nombre)
+        .set({
+      'nombre': nombre,
+      'cartas': cartas.map((carta) => carta.id).toList(),
+    });
   }
 
   Future<void> addCardToLibrary(String cardId) async {
