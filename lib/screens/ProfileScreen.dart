@@ -1,11 +1,52 @@
 import 'package:flutter/material.dart';
+import 'package:pokemans/services/PokeApi.dart';
 import 'package:pokemans/widgets/AppScaffold.dart';
 import 'package:pokemans/widgets/DeckGroup.dart';
+import 'package:pokemon_tcg/pokemon_tcg.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   static const routeName = '/profile';
 
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final Pokeapi _pokeapi = Pokeapi();
+  List<PokemonCard> _favoritas = [];
+  bool _loading = true;
+  int _cartasTotales = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadFavoritas();
+    _loadCartasTotales();
+  }
+
+  Future<void> _loadFavoritas() async {
+    final favoritasIds = await _pokeapi.getFavoritas();
+    final favoritas = <PokemonCard>[];
+    for (final id in favoritasIds) {
+      try {
+        final card = await _pokeapi.api.getCard(id);
+        favoritas.add(card);
+      } catch (_) {}
+    }
+    setState(() {
+      _favoritas = favoritas;
+      _loading = false;
+    });
+  }
+
+  Future<void> _loadCartasTotales() async {
+    final cards = await _pokeapi.getBiblioteca();
+    setState(() {
+      _cartasTotales = cards.length;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +87,9 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      'Cartas totales: 99',
-                      style: TextStyle(fontSize: 20),
+                    Text(
+                      'Cartas totales: $_cartasTotales',
+                      style: const TextStyle(fontSize: 20),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -65,19 +106,36 @@ class ProfileScreen extends StatelessWidget {
               children: [
                 Text('Mis cartas favoritas',
                     style: Theme.of(context).textTheme.titleMedium),
-                Row(
-                  children: List.generate(
-                    4,
-                    (index) => Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                        child: Image.asset(
-                          'media/carta.png',
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    ),
-                  ),
+                SizedBox(
+                  height: 160,
+                  child: _loading
+                      ? const Center(child: CircularProgressIndicator())
+                      : _favoritas.isEmpty
+                          ? const Center(
+                              child: Text('No tienes cartas favoritas'))
+                          : ListView.separated(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: _favoritas.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 8),
+                              itemBuilder: (context, index) {
+                                final card = _favoritas[index];
+                                return AspectRatio(
+                                  aspectRatio: 0.7,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(8),
+                                    child: card.images?.large != null
+                                        ? Image.network(card.images!.large,
+                                            fit: BoxFit.cover)
+                                        : Container(
+                                            color: Colors.grey[300],
+                                            child: const Icon(Icons.image,
+                                                size: 80),
+                                          ),
+                                  ),
+                                );
+                              },
+                            ),
                 ),
               ],
             ),
