@@ -7,6 +7,7 @@ import 'package:pokemans/screens/DecksScreen.dart';
 import 'package:pokemans/screens/HomePage.dart';
 import 'package:pokemans/screens/LibraryScreen.dart';
 import 'package:pokemans/screens/LoginScreen.dart';
+import 'package:pokemans/screens/deck_detail.dart';
 
 import 'firebase_options.dart';
 import 'screens/ProfileScreen.dart';

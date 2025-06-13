@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:pokemans/screens/deck_detail.dart';
 import 'package:pokemans/services/PokeApi.dart';
 
 class DeckGroup extends StatefulWidget {
@@ -35,8 +36,18 @@ class _DeckGroupState extends State<DeckGroup> {
   Future<void> _loadImages() async {
     final List<String> urls = [];
     for (final id in widget.cardIds) {
+      try {
+      // Saltar IDs vacíos
+      if (id.isEmpty) {
+        urls.add('');
+        continue;
+      }
+      
       final card = await _pokeapi.api.getCard(id);
       urls.add(card.images?.large ?? '');
+    } catch (e) {
+      urls.add(''); // Agregar un placeholder en caso de error
+    }
     }
     setState(() {
       imagenesCartas = urls;
@@ -50,7 +61,16 @@ class _DeckGroupState extends State<DeckGroup> {
 
     return GestureDetector(
       onTap: () {
-        // Tu lógica de navegación aquí
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => DeckDetailScreen(
+              deckId: widget.name, // Reemplaza con el ID real
+              deckName: widget.name,
+              cardIds: widget.cardIds.where((id) => id.isNotEmpty).toList(),
+            ),
+          ),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0),

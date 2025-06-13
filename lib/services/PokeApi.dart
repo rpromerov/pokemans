@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:pokemon_tcg/pokemon_tcg.dart';
@@ -98,14 +99,28 @@ class Pokeapi {
   }
 
   Future<List<Map<String, dynamic>>> getMazos() async {
-    if (usuario == null) return [];
+  if (usuario == null) return [];
+  
+  try {
     final snapshot = await db
         .collection("usuarios")
         .doc(usuario!.uid)
         .collection("Mazos")
         .get();
-    return snapshot.docs.map((doc) => doc.data()).toList();
+        
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return {
+        'id': doc.id,
+        'nombre': data['nombre'] ?? 'Sin nombre',
+        'cartas': List<String>.from(data['cartas'] ?? []),
+      };
+    }).toList();
+  } catch (e) {
+    debugPrint("Error al obtener mazos: $e");
+    return [];
   }
+}
 
   Future<void> crearMazo(List<PokemonCard> cartas, String nombre) async {
     if (usuario == null) return;
@@ -126,5 +141,41 @@ class Pokeapi {
       'cartas': FieldValue.arrayUnion([cardId]),
       'fecha modificacion': FieldValue.serverTimestamp(),
     });
+  }
+
+  Future<Map<String, dynamic>> analyzeDeck(List<String> cardIds) async {
+  final types = <String, int>{};
+  int pokemonCount = 0;
+  int trainerCount = 0;
+  int energyCount = 0;
+
+  for (final id in cardIds) {
+    try {
+      final card = await api.getCard(id);
+      final supertype = card.supertype?.toString()?.toLowerCase() ?? '';
+      
+      if (supertype.contains('pokemon')) {
+        pokemonCount++;
+        for (final type in card.types ?? []) {
+          types[type] = (types[type] ?? 0) + 1;
+        }
+      } else if (supertype.contains('trainer')) {
+        trainerCount++;
+      } else if (supertype.contains('energy')) {
+        energyCount++;
+      }
+    } catch (e) {
+      debugPrint("Error analyzing card $id: $e");
+    }
+  }
+
+  return {
+    'types': types,
+    'pokemon': pokemonCount,
+    'trainer': trainerCount,
+    'energy': energyCount,
+  };
+
+
   }
 }
