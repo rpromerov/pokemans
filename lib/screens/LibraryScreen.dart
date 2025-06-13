@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pokemans/services/PokeApi.dart';
 import 'package:pokemans/widgets/AppScaffold.dart';
@@ -18,12 +19,14 @@ class _LibraryscreenState extends State<Libraryscreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
   List<PokemonCard> _cards = [];
+  List<String> _favoritas = [];
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
     _loadCards();
+    _loadFavoritas();
     _pageController.addListener(() {
       int newPage = _pageController.page?.round() ?? 0;
       if (newPage != _currentPage) {
@@ -43,9 +46,49 @@ class _LibraryscreenState extends State<Libraryscreen> {
     });
   }
 
+  Future<void> _loadFavoritas() async {
+    final usuario = FirebaseAuth.instance.currentUser;
+    if (usuario == null) return;
+    final perfil = await FirebaseFirestore.instance
+        .collection(usuario.uid)
+        .doc('Perfil')
+        .get();
+    setState(() {
+      _favoritas = List<String>.from(perfil['cartas favoritas'] ?? []);
+    });
+  }
+
+  Future<void> _toggleFavorita(String cardId) async {
+    final usuario = FirebaseAuth.instance.currentUser;
+    if (usuario == null) return;
+    final doc =
+        FirebaseFirestore.instance.collection(usuario.uid).doc('Perfil');
+
+    // Verifica si el campo existe, si no, lo inicializa
+    final perfilSnapshot = await doc.get();
+    var containsKey =
+        perfilSnapshot.data()?.containsKey('cartas favoritas') ?? false;
+    if (!containsKey) {
+      await doc.set({'cartas favoritas': []}, SetOptions(merge: true));
+    }
+
+    final esFavorita = _favoritas.contains(cardId);
+    setState(() {
+      if (esFavorita) {
+        _favoritas.remove(cardId);
+      } else {
+        _favoritas.add(cardId);
+      }
+    });
+    await doc.update({
+      'cartas favoritas': esFavorita
+          ? FieldValue.arrayRemove([cardId])
+          : FieldValue.arrayUnion([cardId])
+    });
+  }
+
   Future<void> _addCardToLibrary(String cardId) async {
     final pokeapi = Pokeapi();
-    // Implementa este método en tu servicio para añadir la carta a Firestore
     await pokeapi.db.collection(pokeapi.usuario!.uid).doc("Biblioteca").update({
       'cartas': FieldValue.arrayUnion([cardId]),
       'fecha modificacion': FieldValue.serverTimestamp(),
@@ -184,9 +227,30 @@ class _LibraryscreenState extends State<Libraryscreen> {
         padding: const EdgeInsets.all(8),
         children: List.generate(end - start, (i) {
           final card = _cards[start + i];
-          return card.images != null && card.images.large != null
-              ? Image.network(card.images.large)
-              : const Icon(Icons.image_not_supported);
+          final isFav = _favoritas.contains(card.id);
+          return Stack(
+            children: [
+              Positioned.fill(
+                child: card.images != null && card.images.large != null
+                    ? Image.network(card.images.large)
+                    : const Icon(Icons.image_not_supported),
+              ),
+              Positioned(
+                top: 4,
+                right: 4,
+                child: IconButton(
+                  icon: Icon(
+                    isFav ? Icons.star : Icons.star_border,
+                    color: isFav ? Colors.amber : Colors.white,
+                    size: 28,
+                  ),
+                  onPressed: () => _toggleFavorita(card.id),
+                  tooltip:
+                      isFav ? 'Quitar de favoritas' : 'Marcar como favorita',
+                ),
+              ),
+            ],
+          );
         }),
       );
     });
