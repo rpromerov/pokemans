@@ -86,4 +86,35 @@ class Pokeapi {
       return false;
     }
   }
+
+  Future<List<String>> getFavoritas() async {
+    if (usuario == null) return [];
+    final perfil = await db.collection(usuario!.uid).doc('Perfil').get();
+    return List<String>.from(perfil['cartas favoritas'] ?? []);
+  }
+
+  Future<void> toggleFavorita(String cardId, List<String> favoritas) async {
+    if (usuario == null) return;
+    final doc = db.collection(usuario!.uid).doc('Perfil');
+    final perfilSnapshot = await doc.get();
+    var containsKey =
+        perfilSnapshot.data()?.containsKey('cartas favoritas') ?? false;
+    if (!containsKey) {
+      await doc.set({'cartas favoritas': []}, SetOptions(merge: true));
+    }
+    final esFavorita = favoritas.contains(cardId);
+    await doc.update({
+      'cartas favoritas': esFavorita
+          ? FieldValue.arrayRemove([cardId])
+          : FieldValue.arrayUnion([cardId])
+    });
+  }
+
+  Future<void> addCardToLibrary(String cardId) async {
+    if (usuario == null) return;
+    await db.collection(usuario!.uid).doc("Biblioteca").update({
+      'cartas': FieldValue.arrayUnion([cardId]),
+      'fecha modificacion': FieldValue.serverTimestamp(),
+    });
+  }
 }

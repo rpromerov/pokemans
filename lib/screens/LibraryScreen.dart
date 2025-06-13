@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pokemans/services/PokeApi.dart';
 import 'package:pokemans/widgets/AppScaffold.dart';
@@ -21,6 +19,7 @@ class _LibraryscreenState extends State<Libraryscreen> {
   List<PokemonCard> _cards = [];
   List<String> _favoritas = [];
   bool _loading = true;
+  final Pokeapi _pokeapi = Pokeapi();
 
   @override
   void initState() {
@@ -38,8 +37,7 @@ class _LibraryscreenState extends State<Libraryscreen> {
   }
 
   Future<void> _loadCards() async {
-    final pokeapi = Pokeapi();
-    final cards = await pokeapi.getBiblioteca();
+    final cards = await _pokeapi.getBiblioteca();
     setState(() {
       _cards = cards;
       _loading = false;
@@ -47,52 +45,25 @@ class _LibraryscreenState extends State<Libraryscreen> {
   }
 
   Future<void> _loadFavoritas() async {
-    final usuario = FirebaseAuth.instance.currentUser;
-    if (usuario == null) return;
-    final perfil = await FirebaseFirestore.instance
-        .collection(usuario.uid)
-        .doc('Perfil')
-        .get();
+    final favoritas = await _pokeapi.getFavoritas();
     setState(() {
-      _favoritas = List<String>.from(perfil['cartas favoritas'] ?? []);
+      _favoritas = favoritas;
     });
   }
 
   Future<void> _toggleFavorita(String cardId) async {
-    final usuario = FirebaseAuth.instance.currentUser;
-    if (usuario == null) return;
-    final doc =
-        FirebaseFirestore.instance.collection(usuario.uid).doc('Perfil');
-
-    // Verifica si el campo existe, si no, lo inicializa
-    final perfilSnapshot = await doc.get();
-    var containsKey =
-        perfilSnapshot.data()?.containsKey('cartas favoritas') ?? false;
-    if (!containsKey) {
-      await doc.set({'cartas favoritas': []}, SetOptions(merge: true));
-    }
-
-    final esFavorita = _favoritas.contains(cardId);
+    await _pokeapi.toggleFavorita(cardId, _favoritas);
     setState(() {
-      if (esFavorita) {
+      if (_favoritas.contains(cardId)) {
         _favoritas.remove(cardId);
       } else {
         _favoritas.add(cardId);
       }
     });
-    await doc.update({
-      'cartas favoritas': esFavorita
-          ? FieldValue.arrayRemove([cardId])
-          : FieldValue.arrayUnion([cardId])
-    });
   }
 
   Future<void> _addCardToLibrary(String cardId) async {
-    final pokeapi = Pokeapi();
-    await pokeapi.db.collection(pokeapi.usuario!.uid).doc("Biblioteca").update({
-      'cartas': FieldValue.arrayUnion([cardId]),
-      'fecha modificacion': FieldValue.serverTimestamp(),
-    });
+    await _pokeapi.addCardToLibrary(cardId);
     await _loadCards();
   }
 
@@ -110,7 +81,7 @@ class _LibraryscreenState extends State<Libraryscreen> {
           builder: (context, setModalState) {
             Future<void> _searchCards(String query) async {
               setModalState(() => searching = true);
-              final result = await Pokeapi().buscarCartasPorNombre(query);
+              final result = await _pokeapi.buscarCartasPorNombre(query);
               setModalState(() {
                 searchResults = result;
                 searching = false;
