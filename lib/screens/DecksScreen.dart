@@ -43,6 +43,11 @@ class _DecksScreenState extends State<DecksScreen> {
             name: 'Mazo ${start + i + 1}',
             tipo: 'Tipo ${((start + i) % 3) + 1}',
             cartas: 40 + (start + i) * 2,
+            cardIds: [
+              'cardId1',
+              'cardId2',
+              'cardId3',
+            ], // Aquí deberías poner los IDs de las cartas reales
           );
         }),
       );

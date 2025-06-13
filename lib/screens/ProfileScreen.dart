@@ -167,12 +167,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   : SingleChildScrollView(
                       child: Column(
                         children: _mazos.map((mazo) {
+                          var cartas = mazo['cartas'] as List?;
                           return Container(
                             width: double.infinity,
                             child: DeckGroup(
                               name: mazo['nombre'] ?? 'Sin nombre',
                               tipo: 'N/A',
                               cartas: (mazo['cartas'] as List?)?.length ?? 0,
+                              cardIds: [cartas?[0], cartas?[1], cartas?[2]],
                             ),
                           );
                         }).toList(),
