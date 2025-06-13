@@ -106,6 +106,16 @@ class Pokeapi {
     });
   }
 
+  // En lib/services/PokeApi.dart
+  Future<List<Map<String, dynamic>>> getMazos() async {
+    if (usuario == null) return [];
+    final doc = await db.collection(usuario!.uid).doc("Mazos").get();
+    if (!doc.exists) return [];
+    final data = doc.data();
+    if (data == null) return [];
+    return [data];
+  }
+
   Future<void> addCardToLibrary(String cardId) async {
     if (usuario == null) return;
     await db.collection(usuario!.uid).doc("Biblioteca").update({

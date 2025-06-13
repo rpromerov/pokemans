@@ -18,12 +18,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
   List<PokemonCard> _favoritas = [];
   bool _loading = true;
   int _cartasTotales = 0;
+  int _setsDiferentes = 0;
+  List<Map<String, dynamic>> _mazos = [];
 
   @override
   void initState() {
     super.initState();
     _loadFavoritas();
     _loadCartasTotales();
+    _loadMazos();
   }
 
   Future<void> _loadFavoritas() async {
@@ -43,8 +46,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _loadCartasTotales() async {
     final cards = await _pokeapi.getBiblioteca();
+    final uniqueSets = <String>{};
+    for (final card in cards) {
+      if (card.set != null && card.set.id != null) {
+        uniqueSets.add(card.set.id);
+      }
+    }
     setState(() {
       _cartasTotales = cards.length;
+      _setsDiferentes = uniqueSets.length;
+    });
+  }
+
+  Future<void> _loadMazos() async {
+    final mazos = await _pokeapi.getMazos();
+    setState(() {
+      _mazos = mazos;
     });
   }
 
@@ -92,9 +109,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       style: const TextStyle(fontSize: 20),
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Sets diferentes: 3',
-                      style: TextStyle(fontSize: 20),
+                    Text(
+                      'Sets diferentes: $_setsDiferentes',
+                      style: const TextStyle(fontSize: 20),
                     ),
                   ],
                 ),
@@ -145,21 +162,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: List.generate(
-                    4,
-                    (index) => Container(
-                      width: double.infinity,
-                      child: DeckGroup(
-                        name: 'Mazo ${index + 1}',
-                        tipo: 'Tipo ${index + 1}',
-                        cartas: (index + 1) * 10,
+              child: _mazos.isEmpty
+                  ? const Center(child: Text('No tienes mazos'))
+                  : SingleChildScrollView(
+                      child: Column(
+                        children: _mazos.map((mazo) {
+                          return Container(
+                            width: double.infinity,
+                            child: DeckGroup(
+                              name: mazo['nombre'] ?? 'Sin nombre',
+                              tipo: 'N/A',
+                              cartas: (mazo['cartas'] as List?)?.length ?? 0,
+                            ),
+                          );
+                        }).toList(),
                       ),
                     ),
-                  ),
-                ),
-              ),
             )
           ],
         ),
