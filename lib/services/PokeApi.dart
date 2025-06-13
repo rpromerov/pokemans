@@ -31,17 +31,12 @@ class Pokeapi {
         {'cartas favoritas': [], 'cartas totales': 0, 'sets diferentes': 0});
   }
 
-  void crearMazo(mazo, String nombre) {
+  void crearMazo(List<PokemonCard> cartas, String nombre) {
     if (usuario == null) return;
 
     db.collection(usuario!.uid).doc("Mazos").set({
-      'nombre': {
-        'cartas': [],
-        'debilidades': '',
-        'cartas pokemon': 0,
-        'cartas entrenador': 0,
-        'cartas energia': 0
-      },
+      'nombre': nombre,
+      'cartas': cartas.map((carta) => carta.id).toList(),
     });
   }
 
