@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:sign_in_button/sign_in_button.dart';
 
 class Loginscreen extends StatefulWidget {
   const Loginscreen({super.key});
@@ -85,24 +86,24 @@ class _LoginscreenState extends State<Loginscreen> {
                   fit: BoxFit.contain,
                 ),
               ),
-              const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  signInWithGoogle().then((UserCredential user) {
-                    print("Usuario autenticado con Google: ${user.user?.uid}");
-                  }).catchError((e) {
-                    print("Error al iniciar sesión con Google: $e");
-                  });
-                },
-                child: const Text('Iniciar sesión con Google'),
-              ),
               const SizedBox(height: 20),
+              SignInButton(Buttons.google, onPressed: () => signInWithGoogle()),
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "O puedes iniciar sesión con tu correo electrónico:",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
                 decoration: const InputDecoration(
                   labelText: 'Correo electrónico',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12))),
+                  prefixIcon: Icon(Icons.email),
                 ),
               ),
               const SizedBox(height: 10),
@@ -111,7 +112,9 @@ class _LoginscreenState extends State<Loginscreen> {
                 obscureText: true,
                 decoration: const InputDecoration(
                   labelText: 'Contraseña',
-                  border: OutlineInputBorder(),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12))),
+                  prefixIcon: Icon(Icons.lock),
                 ),
               ),
               Row(
@@ -124,6 +127,12 @@ class _LoginscreenState extends State<Loginscreen> {
                         _passwordController.text,
                       );
                     },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 10),
+                    ),
                     child: const Text('Iniciar Sesión'),
                   ),
                   const SizedBox(width: 10),

@@ -14,8 +14,8 @@ class CreatorScreen extends StatefulWidget {
 
 class _CreatorScreenState extends State<CreatorScreen> {
   List<PokemonCard> _biblioCards = [];
-  List<PokemonCard> _filteredCards = [];
-  List<PokemonCard> _mazoCards = [];
+  final List<PokemonCard> _filteredCards = [];
+  final List<PokemonCard> _mazoCards = [];
   PokemonCard? _selectedCard;
   bool _loading = true;
   final int imagesCount = 38;
@@ -28,6 +28,14 @@ class _CreatorScreenState extends State<CreatorScreen> {
   void initState() {
     super.initState();
     _loadCards();
+  }
+
+  @override
+  void dispose() {
+    // Es importante limpiar el controlador cuando el widget se destruye
+    _searchController.dispose();
+    _pageController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadCards() async {
@@ -201,7 +209,7 @@ class _CreatorScreenState extends State<CreatorScreen> {
           ),
           Center(
             child: Text(
-              'Elige tres cartas para crear tu mazo',
+              'Se necesitan al menos 30 cartas para crear un mazo',
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
@@ -282,9 +290,17 @@ class _CreatorScreenState extends State<CreatorScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          final nombre = await _mostrarDialogoDeTexto(context);
-          if (nombre != null) {
-            Pokeapi().crearMazo(_mazoCards, nombre);
+          if (_mazoCards.length > 30) {
+            final nombre = await _mostrarDialogoDeTexto(context);
+            if (nombre != null) {
+              Pokeapi().crearMazo(_mazoCards, nombre);
+            }
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('El mazo debe tener al menos 30 cartas'),
+              ),
+            );
           }
         },
         child: const Icon(Icons.save),

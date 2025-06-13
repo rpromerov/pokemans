@@ -1,6 +1,7 @@
 // lib/app_scaffold.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pokemans/screens/Auth_gate.dart';
 import 'package:pokemans/screens/CreatorScreen.dart';
 import 'package:pokemans/screens/LoginScreen.dart';
 
@@ -83,6 +84,12 @@ class AppScaffold extends StatelessWidget {
               title: const Text('Cerrar Sesion'),
               onTap: () {
                 _cerrarSesion();
+                Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (context) => const AuthGate(),
+                  ),
+                  (Route<dynamic> route) => false,
+                );
               },
             ),
           ],
